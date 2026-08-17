@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Condições de Pagamento</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <style>
+        .table th { white-space: nowrap; }
+        .no-results { text-align: center; font-style: italic; color: #6c757d; }
+    </style>
+</head>
+
+<!-- Overlay de Carregamento -->
+<div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;">
+    <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Carregando...</span>
+    </div>
+    <p class="text-light mt-2">Processando, por favor aguarde...</p>
+</div>
+
+<body>
+    <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="/">INTERSIG</a>
+        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-nav">
+            <div class="nav-item text-nowrap">
+                <a class="nav-link px-3" href="#">Sair (opcional)</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+            <%- include('../components/sidebar', { activePage: 'condicoes-pagamento' }) %>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Condições de Pagamento</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.location.reload()">
+                            <span data-feather="refresh-cw"></span>
+                            Atualizar Lista
+                        </button>
+                    </div>
+                </div>
+
+                <% if (condicoes && condicoes.length > 0) { %>
+                    <p>Total de condições encontradas: <span class="badge bg-info"><%= condicoes.length %></span></p>
+
+                    <!-- CAMPO DE PESQUISA -->
+                    <div class="mb-3">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Pesquisar por Código ou Descrição...">
+                    </div>
+
+                    <!-- INÍCIO DO FORMULÁRIO -->
+                    <form id="sendSelectedConditionsForm" action="/condicoes-pagamento" method="POST">
+
+                        <div class="action-buttons gap-2 d-flex mb-3">
+                            <button type="submit" class="btn btn-primary">
+                                <span data-feather="send"></span>
+                                Enviar Selecionadas
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover table-bordered table-sm" id="conditionsTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th scope="col">
+                                            <input class="form-check-input" type="checkbox" id="selectAllCheckbox">
+                                        </th>
+                                        <th scope="col">Código</th>
+                                        <th scope="col">Descrição</th>
+                                        <th scope="col">Valor Mínimo</th>
+                                        <th scope="col">No Site</th>
+                                        <th scope="col">Ativo</th>
+                                        <th scope="col">Sincronizado</th>
+                                        <th scope="col">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% condicoes.forEach((item) => { %>
+                                        <tr>
+                                            <th scope="row">
+                                                <input class="form-check-input condition-checkbox"
+                                                       type="checkbox"
+                                                       name="selected_conditions"
+                                                       value="<%= item.CODIGO %>">
+                                            </th>
+                                            <td><%= item.CODIGO %></td>
+                                            <td><%= item.DESCRICAO || 'N/A' %></td>
+                                            <td><%= item.VALOR_MINIMO != null ? Number(item.VALOR_MINIMO).toFixed(2) : '-' %></td>
+                                            <td>
+                                                <% if(item.NO_SITE == 'S' ){ %>
+                                                    <span data-feather="check-circle" style="color: green;"></span>
+                                                <% } else { %>
+                                                    <span data-feather="x-circle" style="color: red;"></span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <% if(item.ATIVO == 'S' ){ %>
+                                                    <span data-feather="check-circle" style="color: green;"></span>
+                                                <% } else { %>
+                                                    <span data-feather="x-circle" style="color: red;"></span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <% if(item.codigo_site !== null ){ %>
+                                                    <span data-feather="check-circle" style="color: green;"></span>
+                                                <% } else { %>
+                                                    <span data-feather="x-circle" style="color: red;"></span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <% if(item.codigo_site !== null ){ %>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger btn-delete-condition"
+                                                            data-codigo="<%= item.CODIGO %>"
+                                                            data-nome="<%= item.DESCRICAO %>">
+                                                        <span data-feather="trash-2"></span>
+                                                    </button>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                    <tr id="noResultsFound" style="display: none;">
+                                        <td colspan="8" class="no-results">Nenhuma condição encontrada para sua pesquisa.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+
+                <% } else { %>
+                    <div class="alert alert-warning" role="alert">
+                        Nenhuma condição de pagamento encontrada.
+                    </div>
+                <% } %>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL DE RESULTADOS -->
+    <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header" id="resultModalHeader">
+                    <h5 class="modal-title" id="resultModalLabel">Resultado</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="resultSummary" class="mb-3"></div>
+                    <div id="resultMessage" class="mb-3"></div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped" id="resultTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nome</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" onclick="window.location.reload()">Atualizar Lista</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS (inclui Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+    <script>
+        feather.replace();
+
+        function showResultModal(response, message) {
+            const summary = response.summary;
+            const conditions = response.conditions;
+
+            const $modalHeader = $('#resultModalHeader');
+            if (response.success) {
+                $modalHeader.removeClass('bg-danger').addClass('bg-success text-white');
+                $('#resultModalLabel').text('Operação Concluída com Sucesso');
+            } else if (summary && summary.erros > 0 && summary.sucesso > 0) {
+                $modalHeader.removeClass('bg-success').addClass('bg-warning');
+                $('#resultModalLabel').text('Operação Concluída com Observações');
+            } else {
+                $modalHeader.removeClass('bg-success').addClass('bg-danger text-white');
+                $('#resultModalLabel').text('Falha na Operação');
+            }
+
+            let summaryHtml = '<div class="d-flex gap-3">';
+            if (summary) {
+                summaryHtml += `<span class="badge bg-secondary">Total: ${summary.total}</span>`;
+                summaryHtml += `<span class="badge bg-success">Sucesso: ${summary.sucesso}</span>`;
+                if (summary.erros > 0) {
+                    summaryHtml += `<span class="badge bg-danger">Erros: ${summary.erros}</span>`;
+                }
+            }
+            summaryHtml += '</div>';
+            $('#resultSummary').html(summaryHtml);
+
+            if (message) {
+                $('#resultMessage').html(`<div class="alert alert-info mb-0">${message}</div>`);
+            } else {
+                $('#resultMessage').html('');
+            }
+
+            let tableHtml = '';
+            if (conditions && conditions.length > 0) {
+                conditions.forEach(function(cond) {
+                    let statusBadge = '';
+                    let statusIcon = '';
+                    switch(cond.status) {
+                        case 'enviado':
+                            statusBadge = 'bg-success';
+                            statusIcon = 'check-circle';
+                            break;
+                        case 'atualizado':
+                            statusBadge = 'bg-info';
+                            statusIcon = 'refresh-cw';
+                            break;
+                        case 'ja_sincronizado':
+                            statusBadge = 'bg-secondary';
+                            statusIcon = 'check';
+                            break;
+                        case 'excluido':
+                            statusBadge = 'bg-warning';
+                            statusIcon = 'trash-2';
+                            break;
+                        case 'erro':
+                            statusBadge = 'bg-danger';
+                            statusIcon = 'x-circle';
+                            break;
+                    }
+                    tableHtml += '<tr>';
+                    tableHtml += `<td>${cond.codigo}</td>`;
+                    tableHtml += `<td>${cond.nome || 'N/A'}</td>`;
+                    tableHtml += `<td><span class="badge ${statusBadge}"><span data-feather="${statusIcon}" style="width:14px;height:14px;"></span> ${cond.status.replace('_', ' ')}</span>`;
+                    if (cond.erro) {
+                        tableHtml += ` <small class="text-muted d-block">${cond.erro}</small>`;
+                    }
+                    tableHtml += '</tr>';
+                });
+            }
+            $('#resultTableBody').html(tableHtml);
+
+            const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
+            resultModal.show();
+            feather.replace();
+        }
+
+        $(document).ready(function() {
+            $('#selectAllCheckbox').on('change', function() {
+                $('.condition-checkbox:visible').prop('checked', $(this).is(':checked'));
+            });
+
+            $('.condition-checkbox').on('change', function() {
+                if (!$(this).is(':checked')) {
+                    $('#selectAllCheckbox').prop('checked', false);
+                }
+            });
+
+            const $loadingOverlay = $('#loadingOverlay');
+
+            // Envio de condições selecionadas
+            $('#sendSelectedConditionsForm').submit(function(event) {
+                event.preventDefault();
+
+                const selectedConditionIds = [];
+                $('input[name="selected_conditions"]:checked').each(function() {
+                    selectedConditionIds.push($(this).val());
+                });
+
+                if (selectedConditionIds.length === 0) {
+                    alert('Por favor, selecione pelo menos uma condição de pagamento para enviar.');
+                    return;
+                }
+
+                $loadingOverlay.css('display', 'flex');
+                const $submitButton = $(this).find('button[type="submit"]');
+                $submitButton.prop('disabled', true).find('span[data-feather="send"]').hide();
+                $submitButton.prepend('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ');
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: {
+                        condicoes: selectedConditionIds
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        console.log('Resposta do servidor:', response);
+                        showResultModal(response, null);
+                    },
+                    error: function(xhr, status, error) {
+                        let errorMessage = 'Erro ao enviar condições de pagamento.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage += ' Detalhe: ' + xhr.responseJSON.message;
+                        } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                            errorMessage += ' Detalhe: ' + xhr.responseJSON.error;
+                        } else {
+                            errorMessage += ' Status: ' + status + ', Erro: ' + error;
+                        }
+
+                        const $modalHeader = $('#resultModalHeader');
+                        $modalHeader.removeClass('bg-success bg-warning').addClass('bg-danger text-white');
+                        $('#resultModalLabel').text('Erro na Requisição');
+                        $('#resultSummary').html('');
+                        $('#resultMessage').html(`<div class="alert alert-danger mb-0">${errorMessage}</div>`);
+                        $('#resultTableBody').html('');
+
+                        const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
+                        resultModal.show();
+                    },
+                    complete: function() {
+                        $loadingOverlay.hide();
+                        $submitButton.prop('disabled', false).find('.spinner-border').remove();
+                        $submitButton.find('span[data-feather="send"]').show();
+                        feather.replace();
+                    }
+                });
+            });
+
+            // Exclusão de condição individual
+            $(document).on('click', '.btn-delete-condition', function() {
+                const codigo = $(this).data('codigo');
+                const nome = $(this).data('nome');
+
+                if (!confirm(`Deseja realmente excluir a condição de pagamento "${nome}" (Código: ${codigo}) do Mercos?`)) {
+                    return;
+                }
+
+                $loadingOverlay.css('display', 'flex');
+
+                $.ajax({
+                    url: `/condicoes-pagamento/${codigo}`,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    success: function(response) {
+                        console.log('Resposta do servidor:', response);
+                        showResultModal({
+                            success: response.success,
+                            summary: null,
+                            conditions: [response.condition]
+                        }, response.message);
+                    },
+                    error: function(xhr, status, error) {
+                        let errorMessage = 'Erro ao excluir condição de pagamento.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage += ' Detalhe: ' + xhr.responseJSON.message;
+                        } else {
+                            errorMessage += ' Status: ' + status + ', Erro: ' + error;
+                        }
+
+                        const $modalHeader = $('#resultModalHeader');
+                        $modalHeader.removeClass('bg-success bg-warning').addClass('bg-danger text-white');
+                        $('#resultModalLabel').text('Erro na Exclusão');
+                        $('#resultSummary').html('');
+                        $('#resultMessage').html(`<div class="alert alert-danger mb-0">${errorMessage}</div>`);
+                        $('#resultTableBody').html('');
+
+                        const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
+                        resultModal.show();
+                    },
+                    complete: function() {
+                        $loadingOverlay.hide();
+                    }
+                });
+            });
+
+            // Pesquisa na tabela
+            $('#searchInput').on('keyup', function() {
+                const searchTerm = $(this).val().toLowerCase().trim();
+                let rowsFound = 0;
+
+                $('#conditionsTable tbody tr').each(function() {
+                    if ($(this).attr('id') === 'noResultsFound') {
+                        return;
+                    }
+
+                    const codigo = $(this).find('td:nth-child(2)').text().toLowerCase();
+                    const descricao = $(this).find('td:nth-child(3)').text().toLowerCase();
+
+                    if (codigo.includes(searchTerm) || descricao.includes(searchTerm)) {
+                        $(this).show();
+                        rowsFound++;
+                    } else {
+                        $(this).hide();
+                    }
+                });
+
+                if (rowsFound === 0 && searchTerm !== "") {
+                    $('#noResultsFound').show();
+                } else {
+                    $('#noResultsFound').hide();
+                }
+
+                $('#selectAllCheckbox').prop('checked', false);
+            });
+        });
+    </script>
+</body>
+</html>

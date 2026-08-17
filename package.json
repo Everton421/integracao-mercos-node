@@ -1,0 +1,57 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "old:dev": "ts-node-dev --transpile-only src/server.ts",
+    "dev": "node --env-file .env --watch --experimental-strip-types src/server.ts",
+    "start": "node --env-file .env  --experimental-strip-types src/server.ts", 
+    "test:send-price-product": "node --env-file .env  --experimental-strip-types src/modules/pricing/__test__/send-price-product.test.ts",
+    "test:send-product": "node --env-file .env  --experimental-strip-types src/modules/products/__test__/send-product.test.ts",
+    "test:send-stock": "node --env-file .env  --experimental-strip-types src/modules/inventory/__test__/send-stock.test.ts",
+    "test:send-category": "node --env-file .env  --experimental-strip-types src/modules/categories/__test__/send-category.test.ts",
+    "test:send-transport-company": "node --env-file .env  --experimental-strip-types src/modules/transport-company/__test__/send-transport-company.test.ts",
+    "test:send-customer": "node --env-file .env  --experimental-strip-types src/modules/customers/__test__/send-customer.test.ts",
+    "test:receive-customer": "node --env-file .env  --experimental-strip-types src/modules/customers/__test__/receive-customer.test.ts",
+    "test:receive-customer-request": "node --env-file .env  --experimental-strip-types src/modules/customers/__test__/receive-customer-request.test.ts",
+   
+   
+    "test:receive-order": "node --env-file .env  --experimental-strip-types src/modules/order/__test__/receive-order.test.ts",
+    "test:receive-order-request": "node --env-file .env  --experimental-strip-types src/modules/order/__test__/receive-order-request.test.ts",
+    
+    "test:send-price-table": "node --env-file .env  --experimental-strip-types src/modules/prices-tables/__test__/send-price-table.test.ts",
+    "test:send-payment-method": "node --env-file .env  --experimental-strip-types src/modules/payment-method/__test__/send-payment-method.test.ts"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.8",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/mysql": "^2.15.25",
+    "@types/node-cron": "^3.0.11",
+    "shx": "^0.4.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@types/axios": "^0.14.0",
+    "amqplib": "^0.10.9",
+    "axios": "^1.7.2",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.2.0",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "exceljs": "^4.4.0",
+    "express": "^4.18.2",
+    "express-async-errors": "^3.1.1",
+    "form-data": "^4.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.18.2",
+    "node-cron": "^3.0.3",
+    "tsx": "^4.20.6"
+  }
+}
