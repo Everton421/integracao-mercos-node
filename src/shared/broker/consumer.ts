@@ -140,8 +140,15 @@ export async function consumer_sistema(): Promise<void> {
                         if (productResult.success) {
                             channel.ack(msg);
                         } else {
+                            let tentativas = 5;
+
                             console.log("[x] Falha ao processar produto: ", productResult.message)
-                            channel.nack(msg, false, true);
+                             while( tentativas > 0 ){
+                                await delay(15000);
+                                    console.log(`[C] Executando tentativa: ${tentativas}.`)
+                                   const productResult = await productEventHandler.handle(data);
+                            }
+                            channel.ack(msg);
                         }
                     break;
 
