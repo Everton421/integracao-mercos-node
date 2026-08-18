@@ -1,18 +1,25 @@
 import { ErpTransportCompanyRepository } from '../repository/erp-transport-company-repository.ts';
 import { SendTransportCompanyRequest, type inputTransportCompanyMercos } from '../request/send-transport-company-request.ts';
 
+export type TransportCompanyResultItem = {
+  codigo: number
+  nome: string
+  status: 'enviado' | 'atualizado' | 'ja_sincronizado' | 'erro'
+  erro?: string
+}
+
 export type ResultTransportCompany = {
   success: boolean
   message: string
-  data: { enviados: string[]; erros: any[] } | null
+  data: { sucesso: TransportCompanyResultItem[]; erros: TransportCompanyResultItem[] } | null
 }
 
 export class SendTransportCompanyService {
 
   async sendTransportCompany(codtransportadora?: number): Promise<ResultTransportCompany> {
 
-    const sucessos: string[] = [];
-    const erros: any[] = [];
+    const sucessos: TransportCompanyResultItem[] = [];
+    const erros: TransportCompanyResultItem[] = [];
 
     try {
 
@@ -45,7 +52,7 @@ export class SendTransportCompanyService {
 
             if (!precisaAtualizar) {
               console.log(`[ ] Transportadora ${codigobd} - ${nome} já está atualizada.`);
-              sucessos.push(String(codigobd));
+              sucessos.push({ codigo: codigobd, nome, status: 'ja_sincronizado' });
               continue;
             }
 
@@ -64,10 +71,10 @@ export class SendTransportCompanyService {
             if (statusRequest === 200 || statusRequest === 201) {
               await ErpTransportCompanyRepository.updateTransportCompanySyncDate(codigoTranspSite, codigobd, dataRecadBd);
               console.log(`[V] Transportadora ${codigobd} atualizada no Mercos e DATA_RECAD sincronizado no banco.`);
-              sucessos.push(String(codigobd));
+              sucessos.push({ codigo: codigobd, nome, status: 'atualizado' });
             } else {
               console.error(`[X] Falha ao atualizar transportadora ${codigobd} no Mercos. Status: ${statusRequest}`);
-              erros.push({ codigo: codigobd, erro: 'Falha ao atualizar transportadora no Mercos.', status: statusRequest });
+              erros.push({ codigo: codigobd, nome, status: 'erro', erro: `Falha ao atualizar transportadora no Mercos. Status: ${statusRequest}` });
             }
 
           } else {
@@ -97,31 +104,31 @@ export class SendTransportCompanyService {
                     dataRecad: transportadora.DATA_CADASTRO ?? '',
                   });
                   console.log(`[V] Transportadora ${codigobd} inserida no Mercos (ID ${novoIdSite}) e registrada no banco.`);
-                  sucessos.push(String(codigobd));
+                  sucessos.push({ codigo: codigobd, nome, status: 'enviado' });
                 } else {
                   console.log(`[V] Transportadora ${codigobd} inserida no Mercos (ID ${novoIdSite}), porém já mapeada no banco.`);
-                  sucessos.push(String(codigobd));
+                  sucessos.push({ codigo: codigobd, nome, status: 'enviado' });
                 }
               } else {
                 console.error(`[X] Transportadora ${codigobd} inserida no Mercos, porém o ID não foi retornado no header meuspedidosid.`);
-                erros.push({ codigo: codigobd, erro: 'Transportadora inserida no Mercos, porém o ID não foi retornado no header meuspedidosid.' });
+                erros.push({ codigo: codigobd, nome, status: 'erro', erro: 'Transportadora inserida no Mercos, porém o ID não foi retornado no header meuspedidosid.' });
               }
             } else {
               console.error(`[X] Falha ao inserir transportadora ${codigobd} no Mercos. Status: ${result.status}`);
-              erros.push({ codigo: codigobd, erro: 'Falha ao inserir transportadora no Mercos.', status: result.status });
+              erros.push({ codigo: codigobd, nome, status: 'erro', erro: `Falha ao inserir transportadora no Mercos. Status: ${result.status}` });
             }
           }
 
         } catch (e: any) {
           console.error(`[X] Erro ao processar transportadora ${transportadora.CODIGO}:`, e);
-          erros.push({ codigo: transportadora.CODIGO, erro: e?.message || 'Erro ao processar transportadora.' });
+          erros.push({ codigo: transportadora.CODIGO, nome: transportadora.NOME_FANTASIA || '', status: 'erro', erro: e?.message || 'Erro ao processar transportadora.' });
         }
       }
 
       return {
         success: erros.length === 0,
         message: `Processamento finalizado. Sucessos: ${sucessos.length}, Falhas: ${erros.length}.`,
-        data: { enviados: sucessos, erros },
+        data: { sucesso: sucessos, erros },
       };
 
     } catch (e: any) {

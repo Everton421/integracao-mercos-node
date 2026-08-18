@@ -1,3 +1,4 @@
+import { DateService } from '../../../shared/utils/date-service.ts';
 import { ErpCustomerRepository } from '../repository/erp-customer-repository.ts';
 import { SendCustomerRequest, type inputCustomerMercos } from '../request/send-customer-request.ts';
 
@@ -10,6 +11,8 @@ export type ResultCustomer = {
 export class SendCustomerService {
 
   async sendCustomer(codcliente?: number): Promise<ResultCustomer> {
+    
+    const dateService = new DateService();
 
     const sucessos: string[] = [];
     const erros: any[] = [];
@@ -45,7 +48,7 @@ export class SendCustomerService {
           const telefoneCom = cliente.TELEFONE_COM || '';
           const celular = cliente.CELULAR || '';
 
-          const dataRecadBd = cliente.DATA_RECAD ? new Date(cliente.DATA_RECAD).toISOString().replace('T', ' ').slice(0, 19) : '';
+          const dataRecadBd = cliente.DATA_RECAD ?  dateService.formatarDataHora(cliente.DATA_RECAD) : dateService.obterDataHoraAtual() ;
 
           let contribuinte = 'ISENTO';
           if (cliente.CONTRIB === 'S') {
@@ -114,8 +117,8 @@ export class SendCustomerService {
 
             const result = await SendCustomerRequest.postCustomer(inputPost);
 
-            if (result.status === 200 || result.status === 201) {
-              const novoIdSite = result.id;
+            if (result.success) {
+              const novoIdSite = result.data;
 
               if (novoIdSite) {
                 const clientePosInsercao = await ErpCustomerRepository.findCustomerAfterInsert(codigoBd);
@@ -137,8 +140,8 @@ export class SendCustomerService {
                 erros.push({ codigo: codigoBd, erro: 'Cliente inserido no Mercos, porém o ID não foi retornado no header meuspedidosid.' });
               }
             } else {
-              console.error(`[X] Falha ao inserir cliente ${codigoBd} no Mercos. Status: ${result.status}`);
-              erros.push({ codigo: codigoBd, erro: 'Falha ao inserir cliente no Mercos.', status: result.status });
+              console.error(`[X] Falha ao inserir cliente ${codigoBd} no Mercos. Status: ${result.status} ${JSON.stringify(result.data.erros)}`);
+              erros.push({ codigo: codigoBd, erro: `Falha ao inserir cliente no Mercos. ${JSON.stringify(result.data.erros)} `   });
             }
           }
 

@@ -6,6 +6,7 @@ import { CategoriaController } from "../modules/categories/controller/categoria-
 import { PaymentMethodController } from "../modules/payment-method/controller/payment-method-controller.ts";
 import { OrdersController } from "../modules/order/controller/orders-controller.ts";
 import { PricesTableController } from "../modules/prices-tables/controller/prices-table-controller.ts";
+import { TransportCompanyController } from "../modules/transport-company/controller/transport-company-controller.ts";
 
 const router = Router();
 
@@ -29,6 +30,11 @@ router.post('/pedidos', new OrdersController().receivOrders)
 router.get('/tabelas-precos', new PricesTableController().getAllPricesTables)
 router.post('/tabelas-precos', new PricesTableController().postPriceTables)
 
+router.get('/transportadoras', new TransportCompanyController().getAllTransportCompanies)
+router.post('/transportadoras', new TransportCompanyController().postTransportCompany)
+router.get('/', (req, res)=>{
+    res.render('index')
+})
 /** 
 
 router.get('/produto/:codigo', async (req, res) => {

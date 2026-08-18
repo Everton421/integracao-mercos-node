@@ -6,6 +6,7 @@ import { PriceEventHandler } from '../../modules/pricing/handlers/handle-price-e
 import { ProductEventHandler } from '../../modules/products/handlers/handle-product-event.ts';
 import { type event } from '../contracts/event.ts';
 import { delay } from '../utils/delay.ts';
+import { CustomerEventHandler } from '../../modules/customers/handlers/handle-customer-event.ts';
 
 
 const RECONNECT_DELAY = 5000;
@@ -51,7 +52,19 @@ export async function consumer_sistema(): Promise<void> {
             const data = conteudo as event;
            
             switch (data.tabela_origem) {
-    
+              
+                case 'cad_clie'   :
+                    await delay(delaySyncData, `[...] Aguardando ${delaySyncData/1000} segundos para processar cliente ${data.id_registro} ...`)
+                        const customerEventHandler = new CustomerEventHandler();
+                        const eventResult = await customerEventHandler.handle(data);
+                        if (eventResult.success) {
+                            channel.ack(msg);
+                        } else {
+                            console.log("[x] Falha ao processar cliente: ", eventResult.message)
+                            channel.nack(msg, false, true);
+                        }
+                    break;
+
                 case 'prod_setor'   :
                     await delay(delaySyncData, `[...] Aguardando ${delaySyncData/1000} segundos para processar estoque do produto ${data.id_registro} ...`)
                         const stockEventHandler = new StockEventHandler();

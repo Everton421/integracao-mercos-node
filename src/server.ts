@@ -43,9 +43,9 @@ app.use(
 
 if( Number(process.env.JOBS) > 0) {
     await JobPedido.job();
-     await JobProducts.job();
-     await JobPriceProduct.job();
-     await JobInventory.job();
+     //await JobProducts.job();
+     //await JobPriceProduct.job();
+     //await JobInventory.job();
 }
 
 if (Number(process.env.EVENTS) > 0) {

@@ -24,15 +24,16 @@ export type inputCustomerMercos = {
 
 export class SendCustomerRequest {
 
-  static async postCustomer(input: inputCustomerMercos): Promise<{ status: number, id?: string }> {
+  static async postCustomer(input: inputCustomerMercos) {
     try {
       const response = await RetryExecution.executeWithRetry(() =>
         api.post('/v1/clientes', input)
       );
       const id = response.headers?.['meuspedidosid'];
-      return { status: response.status, id: id ? String(id) : undefined };
+      return  { success: true, data: id, message: null};
     } catch (e: any) {
-      return { status: e?.response?.status ?? 0 };
+      console.log(e)
+      return { status: e.response?.status, message: e.response.data, data: e.response.data  };
     }
   }
 

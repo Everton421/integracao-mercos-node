@@ -17,7 +17,19 @@ type resultTransportCompanyMercos = {
   data_recad: string | null
 }
 
+type resultTransportCompanyWithSite = resultTransportCompany & { codigo_site: string | null }
+
 export class ErpTransportCompanyRepository {
+
+  static async findAllTransportCompanies(): Promise<resultTransportCompanyWithSite[]> {
+    const sql = `SELECT f.*, tm.codigo_site
+                 FROM ${db_publico}.cad_forn f
+                 LEFT JOIN ${db_publico}.transportadora_mercos tm ON tm.codigo_bd = f.CODIGO
+                 WHERE f.ATIV_EMPR = 'T' AND f.ATIVO = 'S'
+                 ORDER BY f.CODIGO`;
+    const [rows] = await conn2.query(sql);
+    return rows as resultTransportCompanyWithSite[];
+  }
 
   static async findTransportCompaniesForSend(codtransportadora?: number): Promise<resultTransportCompany[]> {
     let sql = `SELECT * FROM ${db_publico}.cad_forn
