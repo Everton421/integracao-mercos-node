@@ -18,7 +18,8 @@ export async function consumer_sistema(): Promise<void> {
 
 
   if (!QUEUE_NAME || !EXCHANGE) {
-    throw new Error("Verificar variaveis de ambiente do broker do sistema [ BASE_QUEUE_NAME,   EXCHANGE_NAME] ");
+    console.log(`QUEUE_NAME: ${QUEUE_NAME} EXCHANGE: ${EXCHANGE}`)
+    throw new Error("Verificar variaveis de ambiente do broker do sistema [ QUEUE_NAME,   EXCHANGE_NAME] ");
   }
 
   async function startConsumer() {

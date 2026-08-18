@@ -74,6 +74,14 @@ export class ProductErpRepository {
     return rows as resultCategoryMercos[];
   }
 
+
+static async    findCodeproductsToSendJob() {
+             const sqlProductsForSync = ` SELECT CODIGO FROM ${db_publico}.cad_prod WHERE ATIVO = 'S' AND NO_SITE = 'S';`;
+                    const [resultProduct] = await conn2.query(sqlProductsForSync);
+                      return resultProduct as { CODIGO:number}[];
+  }
+
+
   static async findProductsForSend(params: { codigogrupobanco: number, tabela?: string, codprod?: number }): Promise<resultProductMercos[]> {
     const { codigogrupobanco, tabela, codprod } = params;
     let sqlProducts = `SELECT
@@ -122,7 +130,7 @@ export class ProductErpRepository {
     const [rows] = await conn2.query(sqlProducts);
     return rows as resultProductMercos[];
   }
-
+/*
   static async findStockProduct(codigoProd: number): Promise<{ ESTOQUE: string }[]> {
     const sql = `select
                     est.CODIGO,
@@ -152,7 +160,7 @@ export class ProductErpRepository {
 
     const [rows] = await conn2.query(sql);
     return rows as { ESTOQUE: string }[];
-  }
+  }*/
 
   static async insertProductMercos(params: { codigoSite: string, codigoBd: number, dataRecad: string }) {
     const { codigoSite, codigoBd, dataRecad } = params;

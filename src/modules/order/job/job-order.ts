@@ -17,7 +17,8 @@ export class JobPedido {
             return console.log("é necessario configurar a variavel IMPORTAR_PEDIDOS com a expressao cron. ")
          }
             let inExec = false;
-
+                    
+            console.log("[V] Tarefa de recebimento de pedidos agendada.")
         cron.schedule(configCron, async () => {
                 if(inExec) {
                     console.log("[X] Tarefa de recebimento de pedidos ainda em execução.")

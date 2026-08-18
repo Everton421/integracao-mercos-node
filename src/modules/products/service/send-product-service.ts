@@ -1,6 +1,7 @@
 import axios, { isAxiosError } from 'axios';
 import { ProductErpRepository } from '../repository/produto-repository.ts';
 import { SendProductRequest, type inputProductMercos } from '../request/send-product-request.ts';
+import { ErpInventoryRepository } from '../../inventory/repository/erp-inventory-repository.ts';
 
 export type ProductResultItem = {
   codigo: number
@@ -54,7 +55,7 @@ export class SendProductService {
             const valorVenda = Number(Number(produto.PRECO).toFixed(2));
             const ipi = produto.IPI == null || Number(produto.IPI) === 0 ? null : Number(produto.IPI);
 
-            const estoque = await ProductErpRepository.findStockProduct(produto.CODIGO);
+            const estoque = await ErpInventoryRepository.findStockProduct(produto.CODIGO);
             const estoqueprod = estoque.length > 0 ? Number(Number(estoque[0].ESTOQUE).toFixed(4)) : 0;
 
             const input = {
