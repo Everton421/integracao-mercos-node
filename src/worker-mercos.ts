@@ -1,3 +1,8 @@
 import { consumer_sistema } from "./shared/broker/consumer.ts";
 
-consumer_sistema()
+if (Number(process.env.EVENTS) > 0) {
+     consumer_sistema();
+
+    }else{
+        console.log("[X] Os Eventos estão desabilitados.")
+    }
