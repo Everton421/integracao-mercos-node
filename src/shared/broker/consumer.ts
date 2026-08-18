@@ -66,7 +66,6 @@ export async function consumer_sistema(): Promise<void> {
                     break;
 
                 case 'prod_setor'   :
-                    let tentativas = 5;
                     await delay(delaySyncData, `[...] Aguardando ${delaySyncData/1000} segundos para processar estoque do produto ${data.id_registro} ...`)
                         const stockEventHandler = new StockEventHandler();
                         const stockResult = await stockEventHandler.handle(data);
@@ -74,6 +73,7 @@ export async function consumer_sistema(): Promise<void> {
                             channel.ack(msg);
                         } else {
                             console.log("[x] Falha ao processar estoque do produto: ", stockResult.message)
+                        let tentativas = 5;
 
                             while( tentativas > 0 ){
                                 await delay(15000);
@@ -81,10 +81,13 @@ export async function consumer_sistema(): Promise<void> {
                                     const stockResult = await stockEventHandler.handle(data);
                                 tentativas = tentativas -1;
                             }
-                            channel.nack(msg, false, true);
+                            //channel.nack(msg, false, true);
+                            channel.ack(msg);
+
                         }
                     break;
                    case 'pro_orca':
+
                                await delay(delaySyncData, `[...] Aguardando ${delaySyncData/1000} segundos para processar estoque do produto ${data.id_registro} ...`)
                         const stockEvent  = new StockEventHandler();
                         const stockResultEvent = await stockEvent .handle(data);
@@ -92,7 +95,16 @@ export async function consumer_sistema(): Promise<void> {
                             channel.ack(msg);
                         } else {
                             console.log("[x] Falha ao processar estoque do produto: ", stockResultEvent.message)
-                            channel.nack(msg, false, true);
+                           let tentativas = 5;
+
+                            while( tentativas > 0 ){
+                                await delay(15000);
+                                    console.log(`[C] Executando tentativa: ${tentativas}.`)
+                                    const stockResult = await stockEvent.handle(data);
+                                tentativas = tentativas -1;
+                            }
+                            channel.ack(msg);
+
                         }
                     break;
                 case 'prod_tabprecos' :
@@ -106,7 +118,14 @@ export async function consumer_sistema(): Promise<void> {
                             channel.ack(msg);
                         } else {
                             console.log("[x] Falha ao processar preço do produto: ", result.message)
-                            channel.nack(msg, false, true);
+
+                            let tentativas = 5;
+                            while( tentativas > 0 ){
+                                    console.log(`[C] Executando tentativa: ${tentativas}.`)
+                                    const result = await priceEventHandler.handle(data);
+                            }
+                            channel.ack(msg);
+
                         }
                     break;
 
