@@ -32,7 +32,7 @@ module.exports = {
       exec_mode: "fork",
       watch: false,
       max_memory_restart: "1G",
-      instances: 2,
+      instances: 1,
       autorestart: true,
       restart_delay: 5000,
       log_date_format: "YYYY-MM-DD HH:mm:ss"
