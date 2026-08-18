@@ -121,8 +121,12 @@ export async function consumer_sistema(): Promise<void> {
 
                             let tentativas = 5;
                             while( tentativas > 0 ){
+                                await delay(15000);
+
                                     console.log(`[C] Executando tentativa: ${tentativas}.`)
                                     const result = await priceEventHandler.handle(data);
+                                tentativas = tentativas -1;
+
                             }
                             channel.ack(msg);
 
