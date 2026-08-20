@@ -140,7 +140,7 @@ export class SendCustomerService {
                 erros.push({ codigo: codigoBd, erro: 'Cliente inserido no Mercos, porém o ID não foi retornado no header meuspedidosid.' });
               }
             } else {
-              console.error(`[X] Falha ao inserir cliente ${codigoBd} no Mercos. Status: ${result.status} ${JSON.stringify(result.data.erros)}`);
+              console.error(`[X] Falha ao inserir cliente ${codigoBd} no Mercos.   ${JSON.stringify(result.data)}`);
               erros.push({ codigo: codigoBd, erro: `Falha ao inserir cliente no Mercos. ${JSON.stringify(result.data.erros)} `   });
             }
           }

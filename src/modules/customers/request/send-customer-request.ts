@@ -33,7 +33,7 @@ export class SendCustomerRequest {
       return  { success: true, data: id, message: null};
     } catch (e: any) {
       console.log(e)
-      return { status: e.response?.status, message: e.response.data, data: e.response.data  };
+      return  { success: false, data:  e.response.data, message: e.response.data.mensagem};
     }
   }
 

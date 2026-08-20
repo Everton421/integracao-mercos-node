@@ -18,9 +18,9 @@ test("TESTE ENVIO CLIENTES", async (t) => {
   await t.test("HANDLER EVENTO DE CLIENTE", async () => {
     try {
       const customerEventHandler = new CustomerEventHandler();
-      const evento = { id_registro: 10381 } as event;
+      const evento = { id_registro: 10396 } as event;
       const result = await customerEventHandler.handle(evento);
-      console.log(result)
+      console.log(JSON.stringify(result))
     } catch (e) {
       console.log(e)
     }
