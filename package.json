@@ -11,6 +11,8 @@
     "test:send-price-product": "node --env-file .env  --experimental-strip-types src/modules/pricing/__test__/send-price-product.test.ts",
     "test:send-product": "node --env-file .env  --experimental-strip-types src/modules/products/__test__/send-product.test.ts",
     "test:send-stock": "node --env-file .env  --experimental-strip-types src/modules/inventory/__test__/send-stock.test.ts",
+    "test:inventory-repository": "node --env-file .env  --experimental-strip-types src/modules/inventory/__test__/inventory-repository.test.ts",
+    
     "test:send-category": "node --env-file .env  --experimental-strip-types src/modules/categories/__test__/send-category.test.ts",
     "test:send-transport-company": "node --env-file .env  --experimental-strip-types src/modules/transport-company/__test__/send-transport-company.test.ts",
     "test:send-customer": "node --env-file .env  --experimental-strip-types src/modules/customers/__test__/send-customer.test.ts",

@@ -61,7 +61,15 @@ export async function consumer_sistema(): Promise<void> {
                             channel.ack(msg);
                         } else {
                             console.log("[x] Falha ao processar cliente: ", eventResult.message)
-                            channel.nack(msg, false, true);
+                            let tentativas = 5;
+
+                            while( tentativas > 0 ){
+                                await delay(15000);
+                                    console.log(`[C] Executando tentativa: ${tentativas}.`)
+                                    await customerEventHandler.handle(data);
+                                tentativas = tentativas -1;
+                            }
+                            channel.ack(msg);
                         }
                     break;
 

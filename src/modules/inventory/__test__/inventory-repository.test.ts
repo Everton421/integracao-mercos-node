@@ -2,13 +2,14 @@ import test from 'node:test';
 import { type event } from '../../../shared/contracts/event.ts';
 import { SendStockService } from '../service/send-stock-service.ts';
 import { StockEventHandler } from '../handlers/handle-stock-event.ts';
+import { ErpInventoryRepository } from '../repository/erp-inventory-repository.ts';
 
-test("TESTE ENVIO ESTOQUE", async (t) => {
-  await t.test("ENVIO DE ESTOQUE", async () => {
+test("TESTE CONSULTAS BANCO DE DADOS ", async (t) => {
+  await t.test("BUSCA SALDO REAL", async () => {
     try {
-      const sendStockService = new SendStockService();
-      const result = await sendStockService.sendStock(6873);
+   const result=   await ErpInventoryRepository.findStockProductold();
       console.log(result)
+
     } catch (e) {
       console.log(e)
     }

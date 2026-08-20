@@ -48,9 +48,6 @@ if( Number(process.env.JOBS) > 0) {
      //await JobInventory.job();
 }
 
-if (Number(process.env.EVENTS) > 0) {
-     consumer_sistema();
-}
 
 
 

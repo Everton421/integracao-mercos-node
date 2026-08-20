@@ -19,7 +19,7 @@ export class SendStockService {
     try {
 
       const productsStock = await ErpInventoryRepository.findProductsStockForSend(codprod);
-
+ 
       if (productsStock.length === 0) {
         return { success: false, message: 'Nenhum produto com estoque a sincronizar.', data: null };
       }
@@ -31,14 +31,14 @@ export class SendStockService {
           const idprodutosite = product.codigo_site;
           const idprodutobanco = Number(product.codigo_bd);
 
-          const dataStock = await ErpInventoryRepository.findStockProduct(idprodutobanco);
+          const dataStock = await ErpInventoryRepository.findStockProductold(idprodutobanco);
 
           if (dataStock.length === 0) {
             continue;
           }
 
           const stockRow = dataStock[0];
-            const { CODIGO, ESTOQUE, ESTOQUE_MERCOS, ESTOQUE_TOTAL } = dataStock[0];
+            const { CODIGO, ESTOQUE, ESTOQUE_MERCOS } = dataStock[0];
 
 
           if ( ESTOQUE_MERCOS == ESTOQUE ) {

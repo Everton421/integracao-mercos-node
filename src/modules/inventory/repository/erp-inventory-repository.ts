@@ -13,6 +13,7 @@ type resultStockProductOld = {
   DATARECAD_BANCO: string | null
   DATA_RECAD_SITE: string | null
   ESTOQUE: number
+  ESTOQUE_MERCOS: number
 }
 
 
@@ -46,14 +47,15 @@ export class ErpInventoryRepository {
    * consulta antiga 
    ******************* 
   */
-  static async findStockProductold(codigoProd: number): Promise<resultStockProductOld[]> {
+  static async findStockProductold(codigoProd?: number): Promise<resultStockProductOld[]> {
+    const sqlCodeproduct = `AND P.CODIGO = ${codigoProd}`;
     const sql = `select
-                    est.CODIGO, est.DESCRICAO, est.DATARECAD_BANCO as DATARECAD_BANCO, est.DATA_RECAD_SITE as DATA_RECAD_SITE,
+                    est.CODIGO, est.DESCRICAO, est.DATARECAD_BANCO as DATARECAD_BANCO, EST.ESTOQUE_MERCOS, est.DATA_RECAD_SITE as DATA_RECAD_SITE,
                     if(sum(est.estoque) < 0, 0, sum(est.estoque)) as ESTOQUE
                 from
                     (
                         (select
-                            P.CODIGO, P.DESCRICAO, PS.SETOR, PS.PRODUTO, max(PS.DATA_RECAD) as DATARECAD_BANCO,
+                            P.CODIGO, P.DESCRICAO, PS.SETOR, PS.PRODUTO, max(PS.DATA_RECAD) as DATARECAD_BANCO, ES.estoque as ESTOQUE_MERCOS,
                             ES.DATA_RECAD as DATA_RECAD_SITE, 0 as estoque
                         from ${db_estoque}.prod_setor PS
                         left join ${db_publico}.cad_prod P on P.CODIGO = PS.PRODUTO
@@ -62,11 +64,11 @@ export class ErpInventoryRepository {
                         left join ${db_estoque}.setores S on PS.SETOR = S.CODIGO
                         left outer join ${db_publico}.unid_prod U on (U.PRODUTO = P.CODIGO and U.PADR_SAI = 'S')
                         where S.EST_ATUAL = 'X' AND P.NO_SITE = 'S' AND P.ATIVO = 'S' AND G.NO_SITE = 'S'
-                        AND P.CODIGO = ${codigoProd}
+                    ${codigoProd ? sqlCodeproduct: ''}
                         group by P.CODIGO)
                         UNION ALL
                         (select
-                            P.CODIGO, P.DESCRICAO, PS.SETOR, PS.PRODUTO, NULL as DATARECAD_BANCO,
+                            P.CODIGO, P.DESCRICAO, PS.SETOR, PS.PRODUTO, NULL as DATARECAD_BANCO, ES.estoque as ESTOQUE_MERCOS,
                             ES.DATA_RECAD as DATA_RECAD_SITE,
                             (Sum(PS.ESTOQUE) -
                                 (Select coalesce(Sum((If(PO.QTDE_SEPARADA > (PO.QUANTIDADE - PO.QTDE_MOV), PO.QTDE_SEPARADA, (PO.QUANTIDADE - PO.QTDE_MOV)) * PO.FATOR_QTDE) * If(CO.TIPO = '5', -1, 1)), 0)
@@ -85,11 +87,12 @@ export class ErpInventoryRepository {
                         left join ${db_estoque}.setores S on PS.SETOR = S.CODIGO
                         left outer join ${db_publico}.unid_prod U on (U.PRODUTO = P.CODIGO and U.PADR_SAI = 'S')
                         where S.EST_ATUAL = 'X' AND P.NO_SITE = 'S' AND P.ATIVO = 'S' AND G.NO_SITE = 'S'
-                        AND P.CODIGO = ${codigoProd}
+                    ${codigoProd ? sqlCodeproduct: ''}
+
                         group by P.CODIGO)
                     ) as est
                 group by est.CODIGO`;
-
+    console.log(sql)
     const [rows] = await conn2.query(sql);
     return rows as resultStockProductOld[];
   }
