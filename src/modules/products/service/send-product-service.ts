@@ -55,7 +55,7 @@ export class SendProductService {
             const valorVenda = Number(Number(produto.PRECO).toFixed(2));
             const ipi = produto.IPI == null || Number(produto.IPI) === 0 ? null : Number(produto.IPI);
 
-            const estoque = await ErpInventoryRepository.findStockProduct(produto.CODIGO);
+            const estoque = await ErpInventoryRepository.findStockProductold(produto.CODIGO);
             const estoqueprod = estoque.length > 0 ? Number(Number(estoque[0].ESTOQUE).toFixed(4)) : 0;
 
             const input = {

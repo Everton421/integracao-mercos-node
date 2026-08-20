@@ -92,7 +92,6 @@ export class ErpInventoryRepository {
                         group by P.CODIGO)
                     ) as est
                 group by est.CODIGO`;
-    console.log(sql)
     const [rows] = await conn2.query(sql);
     return rows as resultStockProductOld[];
   }
