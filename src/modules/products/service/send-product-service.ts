@@ -18,7 +18,7 @@ export type ResultProduct = {
 
 export class SendProductService {
 
-  async sendProduct(codprod?: number): Promise<ResultProduct> {
+  async sendProduct(codprod?: number, verifyUpdatedAt?:boolean): Promise<ResultProduct> {
 
     const sucessos: ProductResultItem[] = [];
     const erros: ProductResultItem[] = [];
@@ -119,7 +119,7 @@ export class SendProductService {
                 || datarecadsite === ''
                 || new Date(datarecadbanco) > new Date(datarecadsite);
 
-              if (!precisaAtualizar) {
+              if (verifyUpdatedAt && !precisaAtualizar ) {
                 console.log(`[ ] Produto ${sku} já está atualizado.`);
                 sucessos.push({ codigo: produto.CODIGO, nome: titulo, status: 'ja_sincronizado' });
                 continue;

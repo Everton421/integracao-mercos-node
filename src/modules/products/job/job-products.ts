@@ -29,7 +29,7 @@ export class JobProducts {
 
                     const productsForSend = await ProductErpRepository.findCodeproductsToSendJob();
                     for( const code of  productsForSend ){
-                        await sendProductService.sendProduct(code.CODIGO);
+                        await sendProductService.sendProduct(code.CODIGO, true);
                     }
                
             }catch(e){
